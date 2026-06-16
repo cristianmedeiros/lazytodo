@@ -1,5 +1,3 @@
-import { Octokit } from 'https://esm.sh/@octokit/core';
-
 // --- State Management ---
 let state = {
   todos: [], // Array of { id, text, done, createdAt }
@@ -469,22 +467,34 @@ async function pullFromGit() {
 
   setSyncStatus('syncing', 'Fetching from GitHub...');
 
-  const [owner, repo] = state.settings.repo.split('/');
-  const octokit = new Octokit({ auth: state.settings.pat });
+  const path = state.settings.path;
+  const url = `https://api.github.com/repos/${state.settings.repo}/contents/${path}`;
 
   try {
-    const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-      owner,
-      repo,
-      path: state.settings.path,
+    const response = await fetch(url, {
+      method: 'GET',
       headers: {
+        'Authorization': `Bearer ${state.settings.pat}`,
+        'Accept': 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
         'Cache-Control': 'no-cache'
       }
     });
 
-    state.fileSha = response.data.sha;
-    const mdText = decodeBase64Utf8(response.data.content);
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log('todos.md not found in repository. Initializing new file...');
+        state.fileSha = '';
+        isSyncing = false;
+        await pushToGit();
+        return;
+      }
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const data = await response.json();
+    state.fileSha = data.sha;
+    const mdText = decodeBase64Utf8(data.content);
     const remoteTodos = parseMarkdown(mdText);
 
     // Merge remote and local (prevent duplicate text)
@@ -508,16 +518,8 @@ async function pullFromGit() {
       return;
     }
   } catch (error) {
-    if (error.status === 404) {
-      console.log('todos.md not found in repository. Initializing new file...');
-      state.fileSha = '';
-      isSyncing = false;
-      await pushToGit();
-      return;
-    } else {
-      console.error('GitHub fetch failed:', error);
-      setSyncStatus('offline', `Fetch failed: ${error.message || 'Error'}`);
-    }
+    console.error('GitHub fetch failed:', error);
+    setSyncStatus('offline', `Fetch failed: ${error.message || 'Error'}`);
   } finally {
     isSyncing = false;
   }
@@ -529,39 +531,48 @@ async function pushToGit() {
 
   setSyncStatus('syncing', 'Saving to GitHub...');
 
-  const [owner, repo] = state.settings.repo.split('/');
-  const octokit = new Octokit({ auth: state.settings.pat });
+  const path = state.settings.path;
+  const url = `https://api.github.com/repos/${state.settings.repo}/contents/${path}`;
   const mdText = serializeMarkdown(state.todos);
   const base64Content = encodeBase64Utf8(mdText);
 
   try {
-    const params = {
-      owner,
-      repo,
-      path: state.settings.path,
+    const body = {
       message: 'chore(todos): Update todo list via Lazytodo',
-      content: base64Content,
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28'
-      }
+      content: base64Content
     };
 
     if (state.fileSha) {
-      params.sha = state.fileSha;
+      body.sha = state.fileSha;
     }
 
-    const response = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', params);
-    state.fileSha = response.data.content.sha;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.settings.pat}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      if (response.status === 409) {
+        console.warn('Conflict detected during push. Performing auto-merge...');
+        isSyncing = false;
+        await pullFromGit();
+        return;
+      }
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const data = await response.json();
+    state.fileSha = data.content.sha;
     setSyncStatus('synced', `Saved to ${state.settings.repo}`);
   } catch (error) {
-    if (error.status === 409) {
-      console.warn('Conflict detected during push. Performing auto-merge...');
-      isSyncing = false;
-      await pullFromGit();
-    } else {
-      console.error('GitHub save failed:', error);
-      setSyncStatus('offline', `Save failed: ${error.message || 'Error'}`);
-    }
+    console.error('GitHub save failed:', error);
+    setSyncStatus('offline', `Save failed: ${error.message || 'Error'}`);
   } finally {
     isSyncing = false;
   }
