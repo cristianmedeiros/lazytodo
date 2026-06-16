@@ -331,6 +331,14 @@ taskFormEl.addEventListener('submit', (e) => {
   }
 });
 
+// Submit on Ctrl+Enter / Cmd+Enter inside the textarea
+taskContentEl.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    taskFormEl.requestSubmit();
+  }
+});
+
 settingsFormEl.addEventListener('submit', (e) => {
   e.preventDefault();
   state.settings.pat = patInputEl.value.trim();
