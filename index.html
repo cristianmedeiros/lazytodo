@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lazytodo</title>
+  
+  <!-- Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="logo-icon">⚡</span>
+        <h1>Lazytodo</h1>
+      </div>
+      <div class="header-actions">
+        <div id="sync-status" class="sync-status status-offline" title="Connection Status">
+          <span class="status-dot"></span>
+          <span class="status-text">Local Storage Mode</span>
+        </div>
+        <button id="settings-toggle-btn" class="icon-btn" aria-label="Open Settings" title="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="app-main">
+      <!-- Active Todos Column -->
+      <section class="todo-column active-column">
+        <div class="column-header">
+          <h2>Active Tasks</h2>
+          <span id="active-count" class="badge">0</span>
+        </div>
+        <div id="active-todos-list" class="todos-list" role="listbox" aria-label="Active tasks">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- Archived/Done Column -->
+      <section class="todo-column archived-column">
+        <div class="column-header">
+          <h2>Archived Tasks</h2>
+          <span id="archived-count" class="badge">0</span>
+        </div>
+        <div id="archived-todos-list" class="todos-list archived" role="list" aria-label="Archived tasks">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button id="add-todo-btn" class="fab" aria-label="Create New Todo" title="Create New Todo (Cmd+C / Ctrl+C)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+
+    <!-- Keyboard Shortcuts Helper Overlay (Footer) -->
+    <footer class="app-footer">
+      <div class="shortcuts-guide">
+        <span class="guide-item"><kbd>Cmd</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd> Add Task</span>
+        <span class="guide-item"><kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd> Done Task</span>
+        <span class="guide-item"><kbd>↑</kbd> <kbd>↓</kbd> Select Task</span>
+        <span class="guide-item"><kbd>Esc</kbd> Close Dialog</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Create Task Dialog Modal -->
+  <dialog id="task-dialog" class="modal-dialog" closedby="any" aria-labelledby="task-dialog-title">
+    <div class="dialog-content">
+      <header class="dialog-header">
+        <h3 id="task-dialog-title">Create New Todo</h3>
+        <button class="dialog-close-btn" aria-label="Close modal">&times;</button>
+      </header>
+      <form id="task-form" method="dialog">
+        <div class="form-group">
+          <label for="task-content">What needs to be done?</label>
+          <textarea id="task-content" placeholder="E.g., Complete writing documentation for Conductor setup..." required rows="4"></textarea>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Todo</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Settings Dialog Modal -->
+  <dialog id="settings-dialog" class="modal-dialog" closedby="any" aria-labelledby="settings-dialog-title">
+    <div class="dialog-content">
+      <header class="dialog-header">
+        <h3 id="settings-dialog-title">GitHub Sync Settings</h3>
+        <button class="dialog-close-btn" aria-label="Close modal">&times;</button>
+      </header>
+      <form id="settings-form" method="dialog">
+        <div class="settings-intro">
+          <p>Configure a GitHub Personal Access Token (PAT) and private repository to securely store and sync your todos.</p>
+        </div>
+        <div class="form-group">
+          <label for="settings-pat">Personal Access Token (PAT)</label>
+          <input type="password" id="settings-pat" placeholder="github_pat_..." autocomplete="current-password">
+          <small class="form-help">Requires fine-grained token with <strong>Contents (read & write)</strong> permissions on your data repository.</small>
+        </div>
+        <div class="form-group">
+          <label for="settings-repo">Data Repository (owner/repo)</label>
+          <input type="text" id="settings-repo" placeholder="e.g., your-username/lazytodo-data">
+        </div>
+        <div class="form-group">
+          <label for="settings-path">File Path in Repo</label>
+          <input type="text" id="settings-path" value="todos.md" placeholder="e.g., todos.md">
+        </div>
+        <div class="dialog-actions">
+          <button type="button" id="settings-disconnect-btn" class="btn btn-danger">Disconnect</button>
+          <div class="spacer"></div>
+          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Application Script -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
