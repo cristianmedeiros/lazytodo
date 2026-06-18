@@ -634,7 +634,8 @@ taskFormEl.addEventListener('submit', (e) => {
 taskContentEl.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
-    taskFormEl.requestSubmit();
+    const submitBtn = taskFormEl.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.click();
   }
 });
 
@@ -655,7 +656,8 @@ noteFormEl.addEventListener('submit', (e) => {
 noteContentEl.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
-    noteFormEl.requestSubmit();
+    const submitBtn = noteFormEl.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.click();
   }
 });
 
