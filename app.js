@@ -904,7 +904,7 @@ async function pullFromGit() {
   setSyncStatus('syncing', 'Fetching from GitHub...');
 
   const path = state.settings.path;
-  const url = `https://api.github.com/repos/${state.settings.repo}/contents/${path}`;
+  const url = `https://api.github.com/repos/${state.settings.repo}/contents/${path}?t=${Date.now()}`;
 
   try {
     const response = await fetch(url, {
@@ -912,8 +912,7 @@ async function pullFromGit() {
       headers: {
         'Authorization': `Bearer ${state.settings.pat}`,
         'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Cache-Control': 'no-cache'
+        'X-GitHub-Api-Version': '2022-11-28'
       }
     });
 

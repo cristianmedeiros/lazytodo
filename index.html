@@ -147,6 +147,8 @@
         </div>
         <div class="form-group">
           <label for="settings-pat">Personal Access Token (PAT)</label>
+          <!-- Hidden username input to satisfy password manager DOM accessibility rules -->
+          <input type="text" autocomplete="username" style="display: none;" aria-hidden="true">
           <input type="password" id="settings-pat" placeholder="github_pat_..." autocomplete="current-password">
           <small class="form-help">Requires fine-grained token with <strong>Contents (read & write)</strong> permissions on your data repository.</small>
         </div>
