@@ -22,6 +22,10 @@
         <h1>Lazytodo</h1>
       </div>
       <div class="header-actions">
+        <button id="archive-toggle-btn" class="text-btn" aria-label="Open Archive" title="Archive (Completed Tasks)">Archive</button>
+        <button id="note-toggle-btn" class="icon-btn" aria-label="Add Note" title="New Note (Cmd+N / Ctrl+N)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        </button>
         <div id="sync-status" class="sync-status status-offline" title="Connection Status">
           <span class="status-dot"></span>
           <span class="status-text">Local Storage Mode</span>
@@ -34,24 +38,40 @@
 
     <!-- Main Content Grid -->
     <main class="app-main">
-      <!-- Active Todos Column -->
+      <!-- Left Sidebar (Tags & Notes) -->
+      <aside class="app-sidebar">
+        <!-- Tag Cloud Section -->
+        <section class="sidebar-section tags-section">
+          <div class="section-header">
+            <h3>Tags</h3>
+            <button id="clear-tag-filter-btn" class="clear-filter-btn" style="display: none;">Clear</button>
+          </div>
+          <div id="tag-cloud" class="tag-cloud">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section class="sidebar-section notes-section">
+          <div class="section-header">
+            <h3>Notes</h3>
+            <span id="notes-count" class="badge">0</span>
+          </div>
+          <div id="notes-list" class="notes-list">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+      </aside>
+
+      <!-- Active Todos Column (Main Content) -->
       <section class="todo-column active-column">
         <div class="column-header">
           <h2>Active Tasks</h2>
-          <span id="active-count" class="badge">0</span>
+          <div class="column-header-right">
+            <span id="active-count" class="badge">0</span>
+          </div>
         </div>
         <div id="active-todos-list" class="todos-list" role="listbox" aria-label="Active tasks">
-          <!-- Dynamically populated -->
-        </div>
-      </section>
-
-      <!-- Archived/Done Column -->
-      <section class="todo-column archived-column">
-        <div class="column-header">
-          <h2>Archived Tasks</h2>
-          <span id="archived-count" class="badge">0</span>
-        </div>
-        <div id="archived-todos-list" class="todos-list archived" role="list" aria-label="Archived tasks">
           <!-- Dynamically populated -->
         </div>
       </section>
@@ -66,6 +86,7 @@
     <footer class="app-footer">
       <div class="shortcuts-guide">
         <span class="guide-item"><kbd>Cmd</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd> Add Task</span>
+        <span class="guide-item"><kbd>Cmd</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd> Add Note</span>
         <span class="guide-item"><kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd> Done Task</span>
         <span class="guide-item"><kbd>↑</kbd> <kbd>↓</kbd> Select Task</span>
         <span class="guide-item"><kbd>Esc</kbd> Close Dialog</span>
@@ -88,6 +109,26 @@
         <div class="dialog-actions">
           <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
           <button type="submit" class="btn btn-primary">Create Todo</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Create Note Dialog Modal -->
+  <dialog id="note-dialog" class="modal-dialog" closedby="any" aria-labelledby="note-dialog-title">
+    <div class="dialog-content">
+      <header class="dialog-header">
+        <h3 id="note-dialog-title">Create New Note</h3>
+        <button class="dialog-close-btn" aria-label="Close modal">&times;</button>
+      </header>
+      <form id="note-form" method="dialog">
+        <div class="form-group">
+          <label for="note-content">Note Content</label>
+          <textarea id="note-content" placeholder="E.g., Researching about deployment pipeline alternatives... #ideas" required rows="4"></textarea>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Note</button>
         </div>
       </form>
     </div>
@@ -124,6 +165,24 @@
           <button type="submit" class="btn btn-primary">Save Settings</button>
         </div>
       </form>
+    </div>
+  </dialog>
+
+  <!-- Archive Dialog Modal -->
+  <dialog id="archive-dialog" class="modal-dialog modal-dialog-lg" closedby="any" aria-labelledby="archive-dialog-title">
+    <div class="dialog-content">
+      <header class="dialog-header">
+        <div class="archive-header-title">
+          <h3 id="archive-dialog-title">Archived Tasks</h3>
+          <span id="archived-count" class="badge">0</span>
+        </div>
+        <button class="dialog-close-btn" aria-label="Close modal">&times;</button>
+      </header>
+      <div class="archive-body">
+        <div id="archived-todos-list" class="todos-list archived" role="list" aria-label="Archived tasks">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
     </div>
   </dialog>
 
