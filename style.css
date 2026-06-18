@@ -335,6 +335,23 @@ body {
   background-color: var(--bg-card-hover);
 }
 
+.note-card.selected {
+  border-color: var(--accent);
+  background-color: var(--bg-selected);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.note-card.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background-color: var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
 .note-card-footer {
   display: flex;
   justify-content: space-between;

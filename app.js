@@ -3,6 +3,9 @@ let state = {
   todos: [], // Array of { id, text, done, createdAt, completedAt }
   notes: [], // Array of { id, text, createdAt }
   selectedIndex: -1, // Currently selected todo index in active list
+  selectedNoteId: '', // Currently selected note ID
+  editingTodoId: '', // ID of the todo currently being edited
+  editingNoteId: '', // ID of the note currently being edited
   activeTagFilter: '', // Active hashtag filter (e.g., '#work')
   fileSha: '', // GitHub file SHA
   settings: {
@@ -112,8 +115,14 @@ function closeModal(dialog) {
   dialog.close();
   if (dialog === taskDialogEl) {
     taskFormEl.reset();
+    state.editingTodoId = '';
+    taskDialogEl.querySelector('h3').textContent = 'Create New Todo';
+    taskDialogEl.querySelector('button[type="submit"]').textContent = 'Create Todo';
   } else if (dialog === noteDialogEl) {
     noteFormEl.reset();
+    state.editingNoteId = '';
+    noteDialogEl.querySelector('h3').textContent = 'Create New Note';
+    noteDialogEl.querySelector('button[type="submit"]').textContent = 'Save Note';
   }
 }
 
@@ -276,7 +285,14 @@ function renderTodos() {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.checkbox-wrapper')) return;
         state.selectedIndex = index;
+        state.selectedNoteId = ''; // Clear note selection
         renderTodos();
+        renderNotes();
+      });
+
+      // Handle double click to edit
+      card.addEventListener('dblclick', () => {
+        openEditTodoModal(todo.id);
       });
 
       const checkbox = card.querySelector('input[type="checkbox"]');
@@ -350,7 +366,7 @@ function renderNotes() {
   } else {
     notes.forEach(note => {
       const card = document.createElement('div');
-      card.className = 'note-card';
+      card.className = `note-card${note.id === state.selectedNoteId ? ' selected' : ''}`;
       
       card.innerHTML = `
         <div>${highlightTags(note.text)}</div>
@@ -359,6 +375,19 @@ function renderNotes() {
           <button class="note-delete-btn" data-id="${note.id}" title="Delete Note">Delete</button>
         </div>
       `;
+
+      // Click selects note and clears todo selection
+      card.addEventListener('click', () => {
+        state.selectedNoteId = note.id;
+        state.selectedIndex = -1; // Clear todo selection
+        renderTodos();
+        renderNotes();
+      });
+
+      // Double click to edit note
+      card.addEventListener('dblclick', () => {
+        openEditNoteModal(note.id);
+      });
 
       // Wire up note delete button
       card.querySelector('.note-delete-btn').addEventListener('click', (e) => {
@@ -448,6 +477,55 @@ function addNote(text) {
   }
 }
 
+// --- Edit & Update Actions ---
+function openEditTodoModal(id) {
+  const todo = state.todos.find(t => t.id === id);
+  if (todo) {
+    state.editingTodoId = id;
+    taskDialogEl.querySelector('h3').textContent = 'Edit Todo';
+    taskDialogEl.querySelector('button[type="submit"]').textContent = 'Save Changes';
+    taskContentEl.value = todo.text;
+    openModal(taskDialogEl);
+  }
+}
+
+function openEditNoteModal(id) {
+  const note = state.notes.find(n => n.id === id);
+  if (note) {
+    state.editingNoteId = id;
+    noteDialogEl.querySelector('h3').textContent = 'Edit Note';
+    noteDialogEl.querySelector('button[type="submit"]').textContent = 'Save Changes';
+    noteContentEl.value = note.text;
+    openModal(noteDialogEl);
+  }
+}
+
+function updateTodo(id, text) {
+  const index = state.todos.findIndex(t => t.id === id);
+  if (index !== -1) {
+    state.todos[index].text = text.trim();
+    saveLocalTodos();
+    renderTodos();
+    renderTagCloud();
+    if (isGitConfigured()) {
+      pushToGit();
+    }
+  }
+}
+
+function updateNote(id, text) {
+  const index = state.notes.findIndex(n => n.id === id);
+  if (index !== -1) {
+    state.notes[index].text = text.trim();
+    saveLocalNotes();
+    renderNotes();
+    renderTagCloud();
+    if (isGitConfigured()) {
+      pushToGit();
+    }
+  }
+}
+
 function deleteNote(id) {
   if (confirm('Are you sure you want to delete this note?')) {
     state.notes = state.notes.filter(n => n.id !== id);
@@ -519,6 +597,23 @@ window.addEventListener('keydown', (e) => {
       }
     }
   }
+
+  // 5. Edit Selected Item: Enter
+  if (e.key === 'Enter' && !isAnyModalOpen) {
+    let activeTodos = state.todos.filter(t => !t.done);
+    if (state.activeTagFilter) {
+      activeTodos = activeTodos.filter(t => extractTags(t.text).includes(state.activeTagFilter));
+    }
+    activeTodos.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    if (state.selectedIndex >= 0 && state.selectedIndex < activeTodos.length) {
+      e.preventDefault();
+      openEditTodoModal(activeTodos[state.selectedIndex].id);
+    } else if (state.selectedNoteId) {
+      e.preventDefault();
+      openEditNoteModal(state.selectedNoteId);
+    }
+  }
 });
 
 // --- Submit Form Handlers ---
@@ -526,7 +621,11 @@ taskFormEl.addEventListener('submit', (e) => {
   e.preventDefault();
   const text = taskContentEl.value.trim();
   if (text) {
-    addTodo(text);
+    if (state.editingTodoId) {
+      updateTodo(state.editingTodoId, text);
+    } else {
+      addTodo(text);
+    }
     closeModal(taskDialogEl);
   }
 });
@@ -543,7 +642,11 @@ noteFormEl.addEventListener('submit', (e) => {
   e.preventDefault();
   const text = noteContentEl.value.trim();
   if (text) {
-    addNote(text);
+    if (state.editingNoteId) {
+      updateNote(state.editingNoteId, text);
+    } else {
+      addNote(text);
+    }
     closeModal(noteDialogEl);
   }
 });
