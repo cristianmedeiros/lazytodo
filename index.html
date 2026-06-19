@@ -22,6 +22,7 @@
         <h1>Lazy Todo</h1>
       </div>
       <div class="header-actions">
+        <button id="help-toggle-btn" class="text-btn" aria-label="How it works" title="How it works">How it works</button>
         <button id="archive-toggle-btn" class="text-btn" aria-label="Open Archive" title="Archive (Completed Tasks)">Archive</button>
         <button id="note-toggle-btn" class="icon-btn" aria-label="Add Note" title="New Note (Cmd+N / Ctrl+N)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -89,6 +90,7 @@
         <span class="guide-item"><kbd>Cmd</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd> Add Note</span>
         <span class="guide-item"><kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd> Done Task</span>
         <span class="guide-item"><kbd>↑</kbd> <kbd>↓</kbd> Select Task</span>
+        <span class="guide-item"><kbd>Delete</kbd> Delete Task</span>
         <span class="guide-item"><kbd>Esc</kbd> Close Dialog</span>
       </div>
     </footer>
@@ -184,6 +186,93 @@
         <div id="archived-todos-list" class="todos-list archived" role="list" aria-label="Archived tasks">
           <!-- Dynamically populated -->
         </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- How it Works Dialog Modal -->
+  <dialog id="help-dialog" class="modal-dialog modal-dialog-lg" closedby="any" aria-labelledby="help-dialog-title">
+    <div class="dialog-content">
+      <header class="dialog-header">
+        <h3 id="help-dialog-title">How it Works</h3>
+        <button class="dialog-close-btn" aria-label="Close modal">&times;</button>
+      </header>
+      <div class="help-body">
+        <section class="help-section">
+          <h4>Overview</h4>
+          <p>Lazy Todo is a minimalist, keyboard-centric productivity app designed for developers and power users. It works entirely client-side, storing your tasks and notes locally in your browser, with optional encrypted sync to a private GitHub repository of your choice.</p>
+        </section>
+
+        <section class="help-section">
+          <h4>Keyboard Shortcuts</h4>
+          <div class="shortcuts-grid">
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Cmd</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd></span>
+              <span class="shortcut-desc">Open new task modal</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Cmd</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd></span>
+              <span class="shortcut-desc">Open new note modal</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>↑</kbd> / <kbd>↓</kbd> Arrows</span>
+              <span class="shortcut-desc">Navigate / select active tasks</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd></span>
+              <span class="shortcut-desc">Mark selected task complete (archive it)</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Enter</kbd> (or DblClick)</span>
+              <span class="shortcut-desc">Edit selected task or note</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Delete</kbd> / <kbd>Backspace</kbd></span>
+              <span class="shortcut-desc">Delete selected task</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Cmd</kbd>+<kbd>Enter</kbd> / <kbd>Ctrl</kbd>+<kbd>Enter</kbd></span>
+              <span class="shortcut-desc">Submit form (while editing / creating)</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys"><kbd>Esc</kbd></span>
+              <span class="shortcut-desc">Close any active modal dialog</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="help-section">
+          <h4>Hashtag Tags & Filtering</h4>
+          <p>You can write tags inside your todos or notes (e.g., <code>#work</code>, <code>#ideas</code>). The app will automatically extract these and build a tag cloud in the sidebar. Clicking on a tag will filter all active, archived tasks, and notes that contain that tag.</p>
+        </section>
+
+        <section class="help-section">
+          <h4>Markdown Storage & GitHub Sync</h4>
+          <p>When you configure a Personal Access Token (PAT) and a repository, the app reads and writes from a single markdown file (default: <code>todos.md</code>) in that repo. The file is structured like this:</p>
+          <pre><code># Lazytodo
+
+## Active
+- [ ] Write report (Created: 2026-06-19T11:44:00Z)
+
+## Archived
+- [x] Complete presentation (Created: 2026-06-19T10:00:00Z, Completed: 2026-06-19T11:30:00Z)
+
+## Notes
+- Ideas for project &lt;br&gt; #ideas (Created: 2026-06-19T11:45:00Z)</code></pre>
+        </section>
+
+        <section class="help-section">
+          <h4>How to Setup GitHub Sync</h4>
+          <ol>
+            <li>Create a new private or public GitHub repository (e.g., <code>username/my-lazytodo-data</code>).</li>
+            <li>Go to GitHub Settings &gt; Developer settings &gt; Personal Access Tokens &gt; Fine-grained tokens.</li>
+            <li>Generate a new token with <strong>Repository permissions: Contents (Read and Write)</strong> on your newly created repository.</li>
+            <li>Click the Gear icon ⚙️ in the header of Lazy Todo, enter your PAT and Repository name, and save. Your existing tasks will sync automatically!</li>
+          </ol>
+        </section>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-primary cancel-btn">Got it</button>
       </div>
     </div>
   </dialog>

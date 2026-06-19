@@ -35,12 +35,14 @@ const clearTagFilterBtnEl = document.getElementById('clear-tag-filter-btn');
 // Header action buttons
 const archiveToggleBtnEl = document.getElementById('archive-toggle-btn');
 const noteToggleBtnEl = document.getElementById('note-toggle-btn');
+const helpToggleBtnEl = document.getElementById('help-toggle-btn');
 
 // Modals
 const taskDialogEl = document.getElementById('task-dialog');
 const settingsDialogEl = document.getElementById('settings-dialog');
 const noteDialogEl = document.getElementById('note-dialog');
 const archiveDialogEl = document.getElementById('archive-dialog');
+const helpDialogEl = document.getElementById('help-dialog');
 
 // Forms
 const taskFormEl = document.getElementById('task-form');
@@ -159,6 +161,7 @@ archiveToggleBtnEl.addEventListener('click', () => {
   renderTodos(); // Ensure freshest list
   openModal(archiveDialogEl);
 });
+helpToggleBtnEl.addEventListener('click', () => openModal(helpDialogEl));
 
 settingsToggleBtnEl.addEventListener('click', () => {
   patInputEl.value = state.settings.pat || '';
@@ -274,16 +277,19 @@ function renderTodos() {
           <input type="checkbox" aria-label="Mark task complete">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
-        <div style="flex: 1;">
-          <div class="todo-text">${highlightTags(todo.text)}</div>
-          <div class="todo-meta">
-            <span>Created: ${formatDate(todo.createdAt)}</span>
+        <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+          <div style="flex: 1;">
+            <div class="todo-text">${highlightTags(todo.text)}</div>
+            <div class="todo-meta">
+              <span>Created: ${formatDate(todo.createdAt)}</span>
+            </div>
           </div>
+          <button class="todo-delete-btn" data-id="${todo.id}" title="Delete Task">Delete</button>
         </div>
       `;
 
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.checkbox-wrapper')) return;
+        if (e.target.closest('.checkbox-wrapper') || e.target.closest('.todo-delete-btn')) return;
         state.selectedIndex = index;
         state.selectedNoteId = ''; // Clear note selection
         renderTodos();
@@ -298,6 +304,12 @@ function renderTodos() {
       const checkbox = card.querySelector('input[type="checkbox"]');
       checkbox.addEventListener('change', () => {
         completeTodo(todo.id);
+      });
+
+      const deleteBtn = card.querySelector('.todo-delete-btn');
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteTodo(todo.id);
       });
 
       activeListEl.appendChild(card);
@@ -323,15 +335,24 @@ function renderTodos() {
           <input type="checkbox" checked disabled aria-label="Completed task">
           <svg viewBox="0 0 24 24" style="opacity: 1; transform: scale(1);"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
-        <div style="flex: 1;">
-          <div class="todo-text" style="text-decoration: line-through; color: var(--text-muted);">${highlightTags(todo.text)}</div>
-          <div class="todo-meta">
-            <span>Created: ${formatDate(todo.createdAt)}</span>
-            <span>•</span>
-            <span>Completed: ${formatDate(todo.completedAt)}</span>
+        <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+          <div style="flex: 1;">
+            <div class="todo-text" style="text-decoration: line-through; color: var(--text-muted);">${highlightTags(todo.text)}</div>
+            <div class="todo-meta">
+              <span>Created: ${formatDate(todo.createdAt)}</span>
+              <span>•</span>
+              <span>Completed: ${formatDate(todo.completedAt)}</span>
+            </div>
           </div>
+          <button class="todo-delete-btn" data-id="${todo.id}" title="Delete Task">Delete</button>
         </div>
       `;
+
+      const deleteBtn = card.querySelector('.todo-delete-btn');
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteTodo(todo.id);
+      });
 
       archivedListEl.appendChild(card);
     });
@@ -540,12 +561,32 @@ function deleteNote(id) {
   }
 }
 
+function deleteTodo(id) {
+  if (confirm('Are you sure you want to delete this task?')) {
+    state.todos = state.todos.filter(t => t.id !== id);
+    saveLocalTodos();
+    
+    const activeTodosCount = state.todos.filter(t => !t.done).length;
+    if (state.selectedIndex >= activeTodosCount) {
+      state.selectedIndex = Math.max(0, activeTodosCount - 1);
+    }
+    
+    renderTodos();
+    renderTagCloud();
+
+    if (isGitConfigured()) {
+      pushToGit();
+    }
+  }
+}
+
 // --- Keyboard Shortcuts Handler ---
 window.addEventListener('keydown', (e) => {
   const isAnyModalOpen = taskDialogEl.hasAttribute('open') || 
                          settingsDialogEl.hasAttribute('open') ||
                          noteDialogEl.hasAttribute('open') ||
-                         archiveDialogEl.hasAttribute('open');
+                         archiveDialogEl.hasAttribute('open') ||
+                         helpDialogEl.hasAttribute('open');
   
   // 1. Add Task Modal Trigger: Cmd+C / Ctrl+C
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'c') {
@@ -612,6 +653,20 @@ window.addEventListener('keydown', (e) => {
     } else if (state.selectedNoteId) {
       e.preventDefault();
       openEditNoteModal(state.selectedNoteId);
+    }
+  }
+
+  // 6. Delete Selected Task: Delete / Backspace
+  if ((e.key === 'Delete' || e.key === 'Backspace') && !isAnyModalOpen) {
+    let activeTodos = state.todos.filter(t => !t.done);
+    if (state.activeTagFilter) {
+      activeTodos = activeTodos.filter(t => extractTags(t.text).includes(state.activeTagFilter));
+    }
+    activeTodos.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    if (state.selectedIndex >= 0 && state.selectedIndex < activeTodos.length) {
+      e.preventDefault();
+      deleteTodo(activeTodos[state.selectedIndex].id);
     }
   }
 });

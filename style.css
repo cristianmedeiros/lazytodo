@@ -363,21 +363,32 @@ body {
   padding-top: 0.35rem;
 }
 
-.note-delete-btn {
+.note-delete-btn,
+.todo-delete-btn {
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.75rem;
   line-height: 1;
-  padding: 0.1rem;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
-  transition: color var(--transition-fast), background-color var(--transition-fast);
+  transition: color var(--transition-fast), background-color var(--transition-fast), opacity var(--transition-fast);
 }
 
-.note-delete-btn:hover {
+.note-delete-btn:hover,
+.todo-delete-btn:hover {
   color: var(--danger);
   background-color: rgba(239, 68, 68, 0.1);
+}
+
+.todo-delete-btn {
+  opacity: 0;
+}
+
+.todo-card:hover .todo-delete-btn,
+.todo-card.selected .todo-delete-btn {
+  opacity: 1;
 }
 
 /* --- Buttons in header --- */
@@ -866,4 +877,101 @@ form {
 }
 .btn-danger:hover {
   background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* --- Help / How It Works Dialog --- */
+.help-body {
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.help-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.help-section p, 
+.help-section ol, 
+.help-section ul {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.help-section ol, 
+.help-section ul {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-section li {
+  margin-bottom: 0.5rem;
+}
+
+.help-section code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background-color: var(--bg-app);
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-sm);
+  color: var(--accent-light);
+}
+
+.help-section pre {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+
+.help-section pre code {
+  background-color: transparent;
+  padding: 0;
+  color: var(--text-main);
+}
+
+/* Shortcuts list inside the help dialog */
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.shortcut-keys {
+  flex-shrink: 0;
+  width: 160px;
+}
+
+.shortcut-keys kbd {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+}
+
+.shortcut-desc {
+  color: var(--text-muted);
 }
