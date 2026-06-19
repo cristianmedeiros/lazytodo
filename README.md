@@ -1,6 +1,9 @@
-# ⚡ Lazytodo
+# ⚡ Lazy Todo
 
 A minimalist, keyboard-first todo application for developers. It is served as a 100% static client-side single-page app (SPA), runs entirely in your browser, and securely stores your tasks in **Markdown format** within a **private GitHub repository** of your choice.
+
+<img width="1409" height="924" alt="image" src="https://github.com/user-attachments/assets/2b9a46a0-cb54-4e99-bddf-9bd3d27e7558" />
+
 
 ## 🚀 Features
 
