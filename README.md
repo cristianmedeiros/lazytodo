@@ -7,14 +7,21 @@ A minimalist, keyboard-first todo application for developers. It is served as a 
 
 ## 🚀 Features
 
-* **FIFO Ordering:** Active todos are listed chronologically (oldest at the top) so you focus on completing tasks in the order they were registered.
-* **Done Archival:** Completed tasks are checked off and automatically moved to the "Archived Tasks" section to keep your active list clean.
+* **FIFO Ordering:** Active tasks are listed chronologically (oldest at the top) so you focus on completing tasks in the order they were registered.
+* **Done Archival:** Completed tasks are checked off and automatically moved to the "Archived Tasks" section (accessible via the header modal, sorted by completion date) to keep your active list clean.
+* **Notes Column:** Keep thoughts, code snippets, or reference links in a dedicated sidebar column (sorted newest first).
+* **Tag Cloud & Filtering:** Automatically parses hashtags (e.g. `#work`, `#ref`) from both tasks and notes. Displays unique tags with counts in a cloud; click a tag to filter your active tasks, archive, and notes.
+* **Built-in "How it Works" Guide:** Click the header link to see an in-app cheatsheet of keyboard shortcuts, GitHub integration steps, and the Markdown schema structure.
 * **Keyboard-First Interface:**
-  * <kbd>Cmd</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd> — Open the task creation modal (focuses automatically).
-  * <kbd>↑</kbd> and <kbd>↓</kbd> — Navigate/select tasks in the active column.
-  * <kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd> — Mark the currently selected task as complete (archives it).
-  * <kbd>Esc</kbd> — Close any open dialog.
-* **Secure, Direct Git Storage:** Connects directly from your browser to the GitHub API using a Personal Access Token (PAT).
+  * <kbd>Cmd</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd> — Open the task creation modal.
+  * <kbd>Cmd</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd> — Open the note creation modal.
+  * <kbd>↑</kbd> and <kbd>↓</kbd> — Navigate/select active tasks.
+  * <kbd>Enter</kbd> (or Double-Click) — Edit the selected task or note.
+  * <kbd>Cmd</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>D</kbd> — Mark the selected task as complete (archives it).
+  * <kbd>Delete</kbd> / <kbd>Backspace</kbd> — Delete the selected task.
+  * <kbd>Cmd</kbd>+<kbd>Enter</kbd> / <kbd>Ctrl</kbd>+<kbd>Enter</kbd> — Save/submit forms inside modals.
+  * <kbd>Esc</kbd> — Close any active modal.
+* **Secure, Direct Git Storage:** Connects directly from your browser to the GitHub API using a Personal Access Token (PAT). No database, no telemetry, no third-party tracking servers.
 * **Double Isolation (Private Data + Public Code):** You can host this app publicly on GitHub Pages, while saving your actual todos in a completely separate, private repository. Anyone visiting your GitHub Pages site will only see the clean interface asking for their own token.
 
 ---
